@@ -1,13 +1,18 @@
+// 'dgram' module is used for UDP Datagram sockets.
 const dgram = require('node:dgram');
+
 const dnsPacket = require('dns-packet');
+
+// UDP is chosen for DNS because it supports quick, connectionless exchange of messages.
 const server = dgram.createSocket('udp4');
 
+// This should not be here, if we host our server we should store our IP addresses somewhere
 const dataBase = {
-    'piyushgarg.dev': {
+    'bhatiamanan.dev': {
         type: 'A',
         data: '1.2.3.4'
     },
-    'blog.piyushgarg.dev': {
+    'blog.bhatiamanan.dev': {
         type: 'CNAME',
         data: 'starnode.network'
     },
@@ -32,6 +37,8 @@ server.on('message', (msg, rinfo) => {
         server.send(response, rinfo.port, rinfo.address);
         console.log(ipFromDb);
     } else {
+        // Send an NXDOMAIN response when the requested domain does not exist in the database.
+        // NXDOMAIN stands for "Non-Existent Domain" and is used to indicate that the domain name queried does not exist.
         const response = dnsPacket.encode({
             type: 'response',
             id: request.id,
